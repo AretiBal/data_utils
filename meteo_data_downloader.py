@@ -9,9 +9,21 @@ import click
 @click.option("--start", help="Start year", default=1960)
 @click.option("--end", help="End year", default=2020)
 @click.option("--output", help="Path to store the data", default=".")
-def download_meteo_data(start=1960, end=2020, output="."):
+@click.option("--dataset", help="Dataset to be downloaded", default="historical_rsds_daily")
 
-    url = "https://zenodo.org/records/5947547/files/HySN2018v2005ERA5_historical_rsds_daily_{}.tar.gz"
+def download_meteo_data(start=1960, end=2020, output=".", dataset="historical_rsds_daily"):
+    """
+    Download shortwave radiation for Norway.
+    :param start: start year for data.
+    :param end: end year for data.
+    :param output: path to save the data.
+    :param dataset: name of the dataset to be downloaded.
+    """
+
+    url = f"https://zenodo.org/records/5947547/files/HySN2018v2005ERA5_{dataset}_" + "{}.tar.gz"
+
+    year_range_symbol = "-" if dataset=="historical_rsds_daily" else "_"
+
     output_path = os.path.join(output, "HySN2018v2005ERA5_historical_rsds_daily_{}.tar.gz")
 
     if start < 1960:
@@ -26,9 +38,9 @@ def download_meteo_data(start=1960, end=2020, output="."):
     if start < 2020:
         for decade in range(start, end, 10):
 
-            output_filename = output_path.format(f"{decade}-{decade+9}")
+            output_filename = output_path.format(f"{decade}{year_range_symbol}{decade+9}")
 
-            wget.download(url.format(f"{decade}-{decade+9}"), output_filename)
+            wget.download(url.format(f"{decade}{year_range_symbol}{decade+9}"), output_filename)
 
             with tarfile.open(output_filename, "r:gz") as tar:
                     tar.extractall(path=output)
